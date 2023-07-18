@@ -1,0 +1,15 @@
+---
+- hosts: mysql
+  tags:
+    - install
+  roles:
+    - mysql
+
+- hosts: mysql
+  tags:
+    - uninstall
+  tasks:
+    - name: Uninstall MySQL
+      ansible.builtin.include_role:
+        name: mysql
+        tasks_from: purge

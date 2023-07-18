@@ -1,0 +1,28 @@
+- block:
+  - name: Dependencies for installing MySQL on RedHat
+    ansible.builtin.yum:
+      name: libaio
+      state: present
+
+  - name: Install MySQL dependent ncurses-compat-libs on RHEL8
+    ansible.builtin.yum:
+      name: ncurses-compat-libs
+      state: present
+    when: ansible_distribution_major_version == 8
+
+  - name: "Uninstall MariaDB on {{ ansible_distribution }}"
+    ansible.builtin.yum:
+      name: mariadb*
+      state: removed
+  when: ansible_pkg_mgr == 'yum'
+
+- block:
+  - name: Dependencies for installing MySQL on Debian
+    ansible.builtin.apt:
+      name:
+        - libaio1
+        - libnuma1
+        - libncurses5
+      state: present
+      update_cache: yes
+  when: ansible_pkg_mgr == 'apt'

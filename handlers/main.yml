@@ -1,0 +1,51 @@
+---
+# handlers file for mysql
+- name: Init MySQL
+  ansible.builtin.shell:
+    cmd: "{{ (mysql_deploy_path, 'bin/mysqld') | path_join }} --initialize-insecure --user={{ mysql_user }}"
+  listen: init mysql
+
+- name: Start MySQL service
+  ansible.builtin.systemd:
+    name: "{{ mysql_service_name }}"
+    state: started
+    enabled: true
+    daemon_reload: true
+  listen: start mysql
+
+- name: Restart MySQL service
+  ansible.builtin.systemd:
+    name: "{{ mysql_service_name }}"
+    state: restarted
+    enabled: true
+    daemon_reload: true
+  listen: restart mysql
+
+- name: Stop MySQL service
+  ansible.builtin.systemd:
+    name: "{{ mysql_service_name }}"
+    state: stopped
+    enabled: false
+    daemon_reload: true
+  listen: stop mysql
+
+- name: wait for MySQL to start
+  ansible.builtin.wait_for:
+    port: "{{ mysql_service_port }}"
+    delay: 10
+    timeout: 300
+  listen: set password
+
+- name: Set MySQL root password
+  ansible.builtin.shell:
+    cmd: "{{ (mysql_deploy_path, 'bin/mysqladmin') | path_join }} -u root password '{{ mysql_init_root_password }}'"
+  listen: set password
+
+- name: Print MySQL init password
+  ansible.builtin.debug:
+    msg:
+      - "IP: {{ ansible_host }}"
+      - "Port: {{ mysql_service_port }}"
+      - "Username: root"
+      - "Password: {{ mysql_init_root_password }}"
+  listen: set password
