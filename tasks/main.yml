@@ -1,0 +1,78 @@
+---
+# tasks file for mysql
+- name: Install dependent
+  ansible.builtin.include_tasks:
+    file: dependent.yml
+
+- name: "Create MySQL user {{ mysql_user }}"
+  ansible.builtin.user:
+    name: "{{ mysql_user }}"
+    shell: /bin/false
+    create_home: false
+  when: mysql_user != 'root'
+
+- name: Create MySQL data directory
+  ansible.builtin.file:
+    path: "{{ mysql_datadir }}"
+    state: directory
+    owner: "{{ mysql_user }}"
+    group: "{{ mysql_user }}"
+  notify:
+    - init mysql
+    - set password
+
+- name: "Create MySQL deployment directory"
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ mysql_user }}"
+    group: "{{ mysql_user }}"
+  with_items:
+    - "{{ mysql_deploy_path }}"
+    - "{{ mysql_log_file | dirname }}"
+    - "{{ msyql_socket_file | dirname }}"
+
+- name: "Extract MySQL to {{ mysql_deploy_path }}"
+  ansible.builtin.unarchive:
+    src: "{{ mysql_package }}"
+    dest: "{{ mysql_deploy_path }}"
+    owner: "{{ mysql_user }}"
+    group: "{{ mysql_user }}"
+    creates: "{{ (mysql_deploy_path, 'bin/mysqld') | path_join }}"
+    remote_src: true
+    extra_opts:
+      - --strip-components=1
+  environment:
+    LANGUAGE: en_US
+
+- name: "Add MySQL bin path to system path"
+  ansible.builtin.copy:
+    dest: /etc/profile.d/mysql.sh
+    content: |
+      export PATH=$PATH:{{ (mysql_deploy_path, 'bin') | path_join }}
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: "Upload my.cnf to {{ mysql_config_file }}"
+  ansible.builtin.template:
+    src: my.cnf.j2
+    dest: "{{ mysql_config_file }}"
+    owner: root
+    group: root
+    mode: '0644'
+    backup: true
+  notify:
+    - restart mysql
+
+- name: Upload MySQL systemd script
+  ansible.builtin.template:
+    src: mysqld.service.j2
+    dest: "{{ ('/etc/systemd/system/', mysql_service_name ~ '.service' ) | path_join }}"
+    owner: root
+    group: root
+    mode: '0644'
+  notify:
+    - restart mysql
+
+- ansible.builtin.meta: flush_handlers

@@ -1,0 +1,36 @@
+---
+# defaults file for mysql
+# mysql 用户
+mysql_user: mysqld
+# mysql 部署目录
+mysql_deploy_path: /usr/local/share/mysql
+# mysql 部署包
+mysql_package: https://cdn.mysql.com/archives/mysql-8.0/mysql-8.0.31-linux-glibc2.12-x86_64.tar.xz
+# mysql 服务名
+mysql_service_name: mysqld
+# mysql 服务端口
+mysql_service_port: 3306
+# mysql 管理员密码
+mysql_init_root_password: "{{ lookup('password', '/tmp/mysql_password_file length=16 chars=hexdigits') }}"
+# mysql 配置文件路径
+mysql_config_file: /etc/my.cnf
+# mysql 数据存储目录
+mysql_datadir: /var/lib/mysql
+# mysql 日志文件路径
+mysql_log_file: /var/log/mysql/mysqld.log
+# mysql socket 文件路径
+msyql_socket_file: /var/lib/mysql/mysql.sock
+# mysql pid 文件路径
+mysql_pid_file: /var/run/mysqld/mysqld.pid
+# mysql 允许访问的 IP 网段
+mysql_bind_address: 0.0.0.0
+# mysql 数据库默认字符集
+mysql_character_set_server: utf8mb4
+# mysql 数据库对应的排序规则
+mysql_collation_server: utf8mb4_general_ci
+# mysql 大小写敏感，1 表示不敏感
+mysql_lower_case_table_names: 1
+# mysql 最大连接数
+mysql_max_connections: 400
+# mysql 最大错误连接数
+mysql_max_connect_errors: 1000

@@ -1,0 +1,59 @@
+# For advice on how to change settings please see
+# http://dev.mysql.com/doc/refman/8.0/en/server-configuration-defaults.html
+
+[mysqld]
+#
+# Remove leading # and set to the amount of RAM for the most important data
+# cache in MySQL. Start at 70% of total RAM for dedicated server, else 10%.
+# innodb_buffer_pool_size = 128M
+#
+# Remove the leading "# " to disable binary logging
+# Binary logging captures changes between backups and is enabled by
+# default. It's default setting is log_bin=binlog
+# disable_log_bin
+#
+# Remove leading # to set options mainly useful for reporting servers.
+# The server defaults are faster for transactions and fast SELECTs.
+# Adjust sizes as needed, experiment to find the optimal values.
+# join_buffer_size = 128M
+# sort_buffer_size = 2M
+# read_rnd_buffer_size = 2M
+#
+# Remove leading # to revert to previous value for default_authentication_plugin,
+# this will increase compatibility with older clients. For background, see:
+# https://dev.mysql.com/doc/refman/8.0/en/server-system-variables.html#sysvar_default_authentication_plugin
+# default-authentication-plugin=mysql_native_password
+{# mysql 用户（系统用户） #}
+user={{ mysql_user }}
+{# 数据存放目录 #}
+datadir={{ mysql_datadir }}
+{# socket 文件路径 #}
+socket={{ msyql_socket_file }}
+{# 日志文件路径 #}
+log-error={{ mysql_log_file }}
+pid-file={{ mysql_pid_file }}
+{# mysql 服务端口 #}
+port={{ mysql_service_port }}
+{# mysql 部署目录 #}
+basedir={{ mysql_deploy_path }}
+{# 允许访问的 IP 网段 #}
+bind-address={{ mysql_bind_address }}
+{# 跳过密码登录 #}
+{# skip-grant-tables #}
+{# 数据库默认字符集，主流字符集支持一些特殊表情符号（特殊表情符占用4个字节） #}
+character-set-server={{ mysql_character_set_server }}
+{# 数据库字符集对应一些排序等规则，注意要和character-set-server对应 #}
+collation-server={{ mysql_collation_server }}
+{# 设置 client 连接 mysql 时的字符集，防止乱码 #}
+init_connect='SET NAMES {{ mysql_character_set_server }}'
+{# 是否对sql语句大小写敏感，1表示不敏感 #}
+lower_case_table_names={{ mysql_lower_case_table_names }}
+{# 最大连接数 #}
+max_connections={{ mysql_max_connections }}
+{# 最大错误连接数 #}
+max_connect_errors={{ mysql_max_connect_errors }}
+{# 检查未使用到索引的sql #}
+{# log_queries_not_using_indexes = 1 #}
+
+[client]
+socket={{ msyql_socket_file }}
